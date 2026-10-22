@@ -1,0 +1,6 @@
+{
+  "agenda": "http://localhost:4301/remoteEntry.json",
+  "notas": "http://localhost:4302/remoteEntry.json",
+  "asistencia": "http://localhost:4303/remoteEntry.json",
+  "encuesta": "http://localhost:4304/remoteEntry.json"
+}
