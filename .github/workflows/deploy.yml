@@ -1,0 +1,67 @@
+# Pipeline del shell (Angular).
+# En local el shell usa public/federation.manifest.json (localhost).
+# Aquí se reemplaza por federation.manifest.prod.json, que apunta a cada
+# remoto publicado en su propio repositorio. Los remotos se despliegan solos.
+name: Desplegar shell
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy-shell
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SALIDA: dist/shell/browser
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Usar el manifiesto de producción
+        env:
+          OWNER: ${{ github.repository_owner }}
+        run: sed "s/OWNER/${OWNER,,}/g" federation.manifest.prod.json > $SALIDA/federation.manifest.json
+
+      # GitHub Pages sirve el sitio en /<repositorio>/, no en la raíz.
+      # 404.html permite recargar rutas como /agenda sin error.
+      - name: Ajustar rutas para GitHub Pages
+        env:
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          sed -i "s|<base href=\"/\">|<base href=\"/$REPO/\">|" $SALIDA/index.html
+          grep -q "<base href=\"/$REPO/\">" $SALIDA/index.html
+          cp $SALIDA/index.html $SALIDA/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/shell/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
