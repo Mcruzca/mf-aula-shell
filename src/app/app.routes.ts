@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 import { loadRemoteModule } from '@angular-architects/native-federation';
 import { WebComponentPage } from './web-component-page';
-@Component({ template: '<h2>Elige una actividad</h2><p>Agenda y Notas son Angular. Asistencia y Encuesta son JavaScript puro, publicados como Web Components.</p><p>El shell organiza la navegación. Native Federation carga los archivos remotos.</p>' })
+@Component({ template: '<h2>Elige una actividad</h2><p>Agenda y Notas son Angular. Asistencia y Encuesta son JavaScript puro, publicados como Web Components.</p><p>Asistencia es dueña de la lista de alumnos y la comparte: Agenda la muestra con la misma etiqueta.</p><p>El shell organiza la navegación. Native Federation carga los archivos remotos.</p>' })
 class Inicio {}
 export const routes: Routes = [
  { path: '', pathMatch: 'full', component: Inicio },
